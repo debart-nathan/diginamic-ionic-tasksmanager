@@ -1,0 +1,19 @@
+/**
+ * Styles for task items in the task list component.
+ */
+
+/**
+ * Applies styles to indicate a task is completed.
+ * @memberof module:TasksList
+ */
+.task-done ion-icon {
+    color: green;
+}
+
+/**
+ * Applies styles to indicate a task is not yet completed.
+ * @memberof module:TasksList
+ */
+.task-not-done ion-icon {
+    color: crimson;
+}
