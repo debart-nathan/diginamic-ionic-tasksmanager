@@ -6,7 +6,10 @@ A ionic React tasks manager with a json server
 
 ### paramétré json serveur
 
-* Lancez dans un terminal bash a la racine du projet `./json-server/start-json-server.sh`.
+* Lancez dans un terminal bash a la racine du projet les commandes suivantes 
+  * `cd ./json-server`
+  * `npm install`
+  * `./start-json-server.sh`.
 
 * Copiez l'adresse ip présent dans le points de sortis.
 
@@ -21,4 +24,38 @@ listenaddress=0.0.0.0 `
 connectport=3000 connectaddress=WSL_IP
 ```
 
+puis retrouvé l'ip réel de windows en utilisant la commande
+`ipconfig`
+
 **Fin si**
+
+### paramétré ionic
+
+copié l'ip trouvé dans un fichier dans `./IonicTaskManager/.env`
+votre fichier .env devrais ressembler à:
+
+```.env
+VITE_REACT_APP_BDD_API_URL=http://192.168.0.24:8300
+
+```
+
+* Lancez dans un terminal bash a la racine du projet les commandes suivantes 
+  * `cd ./IonicTaskManager`
+  * `npm install`
+  * `ionic cap sync android`
+
+## Lancer l'application
+
+### En local
+
+Dans un terminal bash dans le dossier `./IonicTaskManager` lancé la commande,
+`ionic serve`
+
+## Sur un téléphone portable
+
+Ouvrer android studio dans le dossier `./IonicTaskManager/android`,
+
+* soit en lancent la commande bash : `ionic capacitor open android` depuis `./IonicTaskManager`.
+* soit manuellement en ouvrant Android studio et en sélectionnant ouvrir un projet.
+
+Et après avoir sélectionné votre appareil clicker sur le bouton en forme de triangle vert nommé "run app".
