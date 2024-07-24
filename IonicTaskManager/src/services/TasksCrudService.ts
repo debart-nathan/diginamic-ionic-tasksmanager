@@ -83,6 +83,7 @@ class TasksCrudService {
           if(!response){
             return [];
           }
+          
           return response;
         })
         .then(tasks => {
@@ -105,7 +106,7 @@ class TasksCrudService {
             return a.date.getTime() - b.date.getTime();
           });
 
-  
+          console.log("the current tasks :", JSON.stringify(tasks))
           observer.next(sortedTasks);
         })
         .catch(error => observer.error(error))
@@ -126,7 +127,7 @@ class TasksCrudService {
    * @returns An observable of the created Task object.
    */
     pushLocalTasks(tasks: Task[]): Observable<any> {
-      console.log(tasks);
+      console.log("the current tasks :", JSON.stringify(tasks))
       return new Observable<any>(observer => {
         this.storage.set('tasks',tasks)
           .then(data => observer.next(data))
