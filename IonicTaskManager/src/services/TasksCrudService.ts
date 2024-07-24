@@ -2,6 +2,7 @@
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { Task } from '../Types/Task'; // Import the Task interface
+import {Storage} from '@ionic/storage';
 
 
 /**
@@ -12,13 +13,21 @@ class TasksCrudService {
    * Base URL for the API endpoint where tasks are stored.
    */
     private apiUrl: string;
+    private storage: Storage
 
 
     constructor() {
       // Set apiUrl based on the environment variable
-      this.apiUrl = import.meta.env.VITE_REACT_APP_API_URL  || 'http://localhost:3000/tasks';
+      const url = import.meta.env.VITE_REACT_APP_BDD_API_URL  || 'http://localhost:3000';
+      this.apiUrl=url+'/tasks'
+      this.storage = new Storage();
+      this.storage.create();
   }
 
+    /**
+   * Recover the tasks from server
+   * @returns An observable of the Tasks[] objects
+   */
   fetchTasks(): Observable<Task[]> {
     return new Observable<Task[]>(observer => {
       fetch(this.apiUrl)
@@ -62,6 +71,75 @@ class TasksCrudService {
       map((response) => response)
     );
   }
+
+  /**
+   * Recover the tasks from local storage
+   * @returns An observable of the Tasks[] objects
+   */
+  fetchLocalTasks(): Observable<Task[]> {
+    return new Observable<Task[]>(observer => {
+      this.storage.get("tasks")
+        .then(response => {
+          if(!response){
+            return [];
+          }
+          return response;
+        })
+        .then(tasks => {
+          // Convert date strings to Date objects if necessary
+          tasks.forEach((task: Task) => {
+            if (typeof task.date === 'string') {
+              task.date = new Date(task.date);
+            }
+          });
+  
+          // Sort tasks by done status (not done first, then done)
+          const sortedTasks = tasks.sort((a: Task, b: Task) => {
+            // First, compare by done status
+            const doneComparison = +a.done - +b.done;
+            if (doneComparison !== 0) {
+              return doneComparison;
+            }
+          
+            // If done status is equal, compare by date
+            return a.date.getTime() - b.date.getTime();
+          });
+
+  
+          observer.next(sortedTasks);
+        })
+        .catch(error => observer.error(error))
+        .finally(() => observer.complete());
+    }).pipe(
+      retry(3),
+      catchError((error) => {
+        console.error('Error fetching tasks:', error);
+        return throwError(() => new Error('Failed to fetch tasks after 3 attempts'));
+      }),
+      map((response) => response)
+    );
+  }
+
+    /**
+   * Creates a new task in the API.
+   * @param task The task to create.
+   * @returns An observable of the created Task object.
+   */
+    pushLocalTasks(tasks: Task[]): Observable<any> {
+      console.log(tasks);
+      return new Observable<any>(observer => {
+        this.storage.set('tasks',tasks)
+          .then(data => observer.next(data))
+          .catch(error => observer.error(error))
+          .finally(() => observer.complete());
+      }).pipe(
+        retry(3),
+        catchError((error) => {
+          console.error('Error creating task:', error);
+          return throwError(() => new Error('Failed to create task after 3 attempts'));
+        })
+      );
+    }
 
   /**
    * Creates a new task in the API.

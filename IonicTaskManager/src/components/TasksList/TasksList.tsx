@@ -24,6 +24,7 @@ import tasksCrudService from "../../services/TasksCrudService";
 import { Task } from "../../Types/Task";
 import TaskForm from "../TaskForm/TaskForm";
 import "./TasksList.css";
+import { v4 as uuidv4 } from 'uuid';
 import { checkmarkCircleOutline, closeCircleOutline } from "ionicons/icons";
 
 /**
@@ -39,28 +40,26 @@ const TaskList: React.FC<TaskListProps> = () => {
 
     // Refs for managing subscriptions
     const loadTasksSubscriptionRef = useRef<any>();
-    const createTaskSubscriptionRef = useRef<any>();
-    const updateTaskSubscriptionRef = useRef<any>();
-    const deleteTaskSubscriptionRef = useRef<any>();
+    const pushTaskSubscriptionRef = useRef<any>();
 
     useEffect(() => {
         loadTasks();
         // Cleanup function to unsubscribe from all subscriptions
         return () => {
             loadTasksSubscriptionRef.current?.unsubscribe();
-            createTaskSubscriptionRef.current?.unsubscribe();
-            updateTaskSubscriptionRef.current?.unsubscribe();
-            deleteTaskSubscriptionRef.current?.unsubscribe();
+            pushTaskSubscriptionRef.current?.unsubscribe();
         };
     }, []);
 
     const loadTasks = () => {
         loadTasksSubscriptionRef.current = tasksCrudService
-            .fetchTasks()
+            .fetchLocalTasks()
             .subscribe({
                 next: (fetchedTasks) => setTasks(fetchedTasks),
                 error: (error) =>
-                    alert(`Error loading tasks: ${error.message}`),
+                    alert(
+                        `Erreur lors du chargement des taches: ${error.message}`
+                    ),
             });
     };
 
@@ -80,34 +79,35 @@ const TaskList: React.FC<TaskListProps> = () => {
      * Handles saving a task, either creating a new one or updating an existing one.
      * @param newTask The task object to save.
      */
-    const handleSave = (newTask: Task) => {
+    const handleSave =(newTask: Task) => {
+        let updatedTasks = tasks;
         if (editingTask) {
             newTask.id = editingTask.id;
             // Update existing task
-            const updatedTasks = tasks.map((task) =>
+            updatedTasks = tasks.map((task) =>
                 task.id === editingTask.id ? { ...task, ...newTask } : task
             );
-            setTasks(updatedTasks);
-            updateTaskSubscriptionRef.current = tasksCrudService
-                .updateTask(newTask)
-                .subscribe({
-                    error: (error) => {
-                        alert("Erreur lors de la modification de la tache");
-                        loadTasks();
-                    },
-                });
         } else {
-            // Add new task
-            setTasks((current_tasks) => [...current_tasks, newTask]);
-            createTaskSubscriptionRef.current = tasksCrudService
-                .createTask(newTask)
-                .subscribe({
-                    error: (error) => {
-                        alert("Erreur lors de la creation de la tache");
-                        loadTasks();
-                    },
-                });
+
+            function generateUniqueID(existingIDs:(string|undefined)[]) {
+                let id;
+                do {
+                    id = uuidv4();
+                } while (existingIDs.includes(id));
+                return id;
+            }
+            newTask.id = generateUniqueID(tasks.map((item) => item.id));
+            updatedTasks.push(newTask)
         }
+        setTasks(updatedTasks);
+        pushTaskSubscriptionRef.current = tasksCrudService
+            .pushLocalTasks(updatedTasks)
+            .subscribe({
+                error: (error) => {
+                    alert("Erreur lors de la modification de la tache");
+                    loadTasks();
+                },
+            });
     };
 
     /**
@@ -115,10 +115,16 @@ const TaskList: React.FC<TaskListProps> = () => {
      * @param taskId the id of the task to delete
      */
     const handleDelete = (taskId: string) => {
-        setTasks((tasks) => tasks.filter((task) => task.id !== taskId));
-        deleteTaskSubscriptionRef.current = tasksCrudService
-            .deleteTask(taskId)
-            .subscribe(() => {});
+        const updatedTasks= tasks.filter((task) => task.id !== taskId)
+        setTasks(updatedTasks);
+        pushTaskSubscriptionRef.current = tasksCrudService
+            .pushLocalTasks(updatedTasks)
+            .subscribe({
+                error: (error) => {
+                    alert("Erreur lors de la modification de la tache");
+                    loadTasks();
+                },
+            });
     };
 
     return (
@@ -132,7 +138,11 @@ const TaskList: React.FC<TaskListProps> = () => {
                 <IonButton onClick={startCreate}>Ajouter une tâche</IonButton>
                 <IonList>
                     {tasks.map((task) => (
-                        <IonItem key={"ion-item-" + task.id}>
+                        <IonItem
+                            key={"ion-item-" + task.id}
+                            className={
+                                task.done ? "task-done" : "task-not-done"
+                            }>
                             <IonIcon
                                 slot="start"
                                 icon={
