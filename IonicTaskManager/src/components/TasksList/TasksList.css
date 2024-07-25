@@ -1,19 +1,91 @@
-/**
- * Styles for task items in the task list component.
- */
 
-/**
- * Applies styles to indicate a task is completed.
- * @memberof module:TasksList
- */
-.task-done ion-icon {
-    color: green;
+.content-container {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    max-width: 80%;
+    padding: 20px;
 }
 
-/**
- * Applies styles to indicate a task is not yet completed.
- * @memberof module:TasksList
- */
+.item-content-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row; 
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+.task-label-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row; 
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    
+}
+.task-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row; 
+    justify-content: left;
+    align-items: center;
+    gap: 10px;
+}
+
+
+@media (max-width: 768px) {
+    .item-content-wrapper {
+        flex-direction: column; /* Stack items vertically on smaller screens */
+    }
+    .task-wrapper {
+        flex-direction: column;
+    }
+}
+
+
+.submit-button {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 10px 20px;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+.task-done {
+    ion-icon {
+        color: green;
+    }
+    h2{
+        text-decoration-line: line-through;
+    
+    }
+}
+
+.task-not-done {
+    ion-icon {
+        color: crimson;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-container {
+        padding: 10px;
+        max-width: 95%;
+    }
+
+    .submit-button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+.task-done ion-icon,
 .task-not-done ion-icon {
-    color: crimson;
+    font-size: 20px; /* Adjust based on your design needs */
 }

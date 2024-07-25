@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import {
-    IonContent,
-    IonHeader,
-    IonPage,
-    IonTitle,
-    IonToolbar,
-    IonInput,
-    IonButton,
-    IonCheckbox,
-} from "@ionic/react";
+import { IonInput, IonButton, IonCheckbox } from "@ionic/react";
 import { Task } from "../../Types/Task";
+import "./TaskForm.css";
 
 /**
  * Define props for the TaskForm component
@@ -26,7 +18,6 @@ interface TaskFormProps {
  * TaskForm Component
  * A form component used for adding or editing tasks.
  * It uses react-hook-form for form management and Ionic components for UI elements.
- * @component
  * @example <TaskForm isOpen={true} onClose={() => {}} onSave={(task) => {}} />
  */
 const TaskForm: React.FC<TaskFormProps> = ({
@@ -35,7 +26,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
     onSave,
     initialTask,
 }) => {
-
     /**
      * useForm hook from react-hook-form for managing form state and validation.
      */
@@ -94,7 +84,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         const checkboxElement = document.querySelector("ion-checkbox");
         if (checkboxElement) {
             formData.done = checkboxElement.checked;
-        }else{
+        } else {
             formData.done = false;
         }
 
@@ -112,39 +102,51 @@ const TaskForm: React.FC<TaskFormProps> = ({
      * Renders the TaskForm component with form fields and buttons.
      */
     return (
-        <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Ajout / Modification de la Tâche</IonTitle>
-                    <IonButton fill="clear" onClick={onClose}>
-                        Fermer
-                    </IonButton>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <IonInput
-                        {...register("label", {
-                            required: "Label is required.",
-                        })}
-                        placeholder="Étiquette de la tâche"
-                    />
-                    {errors.label && <p>{String(errors.label.message)}</p>}
-                    
-                    <IonInput
-                        type="datetime-local"
-                        {...register("date", { required: "Date is required." })}
-                        placeholder="Date et heure d'échéance"
-                    />
-                    {errors.date && <p>{String(errors.date.message)}</p>}
-                    
-                    <IonCheckbox {...register("done")}></IonCheckbox>
-                    <IonButton expand="full" type="submit" disabled={!isOpen}>
-                        Soumettre
-                    </IonButton>
-                </form>
-            </IonContent>
-        </IonPage>
+        <form onSubmit={handleSubmit(onSubmit)} className="form-container">
+            <div className="input-wrapper">
+                <label htmlFor="label" className="input-label">
+                    Étiquette de la tâche:
+                </label>
+                <IonInput
+                    id="label"
+                    {...register("label", {
+                        required: "Label is required.",
+                    })}
+                    placeholder="Étiquette de la tâche"
+                    className="input-field"
+                />
+            </div>
+            {errors.label && <p>{String(errors.label.message)}</p>}
+
+            <div className="input-wrapper">
+                <label htmlFor="date" className="input-label">
+                    Date et heure d'échéance:
+                </label>
+                <IonInput
+                    type="datetime-local"
+                    id="date"
+                    {...register("date", { required: "Date is required." })}
+                    placeholder="Date et heure d'échéance"
+                    className="input-field"
+                />
+            </div>
+            {errors.date && <p>{String(errors.date.message)}</p>}
+
+            <div>
+                <label htmlFor="done" className="input-label">
+                    Marquer comme terminé:
+                </label>
+                <IonCheckbox id="done" {...register("done")} />
+            </div>
+
+            <IonButton
+                expand="full"
+                type="submit"
+                disabled={!isOpen}
+                className="submit-button">
+                Soumettre
+            </IonButton>
+        </form>
     );
 };
 

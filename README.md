@@ -17,7 +17,7 @@ A ionic React tasks manager with a json server
 
  Dans un PowerShell Admin, exécutez la commande suivante en remplaçant `WSL_IP` par l'IP copiée précédemment :
 
-```powershell
+```shell
 netsh interface portproxy add v4tov4 `
 listenport=8300 `
 listenaddress=0.0.0.0 `

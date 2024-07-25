@@ -1,0 +1,9 @@
+{
+    "highlight": [
+      {
+        "type": "regex",
+        "value": ".env",
+        "format": "none"
+      }
+    ]
+}

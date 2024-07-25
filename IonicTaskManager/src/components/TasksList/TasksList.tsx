@@ -1,20 +1,15 @@
-/**
- * @fileOverview Renders a list of tasks managed by the application. Users can view, edit, and delete tasks, as well as add new ones.
- */
-
 import React, { useEffect, useRef, useState } from "react";
 import {
-    IonContent,
-    IonHeader,
-    IonPage,
-    IonTitle,
-    IonToolbar,
     IonList,
     IonItem,
     IonLabel,
     IonIcon,
     IonButton,
     IonModal,
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
 } from "@ionic/react";
 import tasksCrudService from "../../services/TasksCrudService";
 import { Task } from "../../Types/Task";
@@ -33,7 +28,6 @@ interface TaskListProps {}
 /**
  * TaskList component.
  * Renders a list of tasks managed by the application. Users can view, edit, and delete tasks, as well as add new ones.
- * @component
  * @example <TaskList />
  */
 const TaskList: React.FC<TaskListProps> = () => {
@@ -47,11 +41,10 @@ const TaskList: React.FC<TaskListProps> = () => {
     const loadTasksSubscriptionRef = useRef<any>();
     const pushTaskSubscriptionRef = useRef<any>();
 
-
     useEffect(() => {
         loadTasks();
-         // Set up an interval to call loadTasks every hour
-         intervalRef.current = setInterval(loadTasks, 60 * 60 * 1000);
+        // Set up an interval to call loadTasks every hour
+        intervalRef.current = setInterval(loadTasks, 60 * 60 * 1000);
         // Cleanup function to unsubscribe from all subscriptions
         return () => {
             loadTasksSubscriptionRef.current?.unsubscribe();
@@ -128,7 +121,9 @@ const TaskList: React.FC<TaskListProps> = () => {
     const scheduleNotification = async (task: Task, message: string) => {
         if (task.id) {
             const numericId = hashId(task.id);
-            await LocalNotifications.cancel({notifications: [{ id: numericId }]});
+            await LocalNotifications.cancel({
+                notifications: [{ id: numericId }],
+            });
             await LocalNotifications.schedule({
                 notifications: [
                     {
@@ -215,7 +210,9 @@ const TaskList: React.FC<TaskListProps> = () => {
              * @param {Array<string|undefined>} existingIDs - An array of existing task IDs.
              * @returns {string} A unique ID for the new task.
              */
-            function generateUniqueID(existingIDs: Array<string|undefined>): string {
+            function generateUniqueID(
+                existingIDs: Array<string | undefined>
+            ): string {
                 let id;
                 do {
                     id = uuidv4();
@@ -254,62 +251,73 @@ const TaskList: React.FC<TaskListProps> = () => {
     };
 
     return (
-        <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Gestion des Tâches</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent>
-                <IonButton onClick={startCreate}>Ajouter une tâche</IonButton>
-                <IonList>
-                    {tasks.map((task) => (
-                        <IonItem
-                            key={"ion-item-" + task.id}
-                            className={
-                                task.done ? "task-done" : "task-not-done"
-                            }>
-                            <IonIcon
-                                slot="start"
-                                icon={
-                                    task.done
-                                        ? checkmarkCircleOutline
-                                        : closeCircleOutline
-                                }
-                                aria-label={
-                                    task.done
-                                        ? "Tâche complétée"
-                                        : "Tâche non complétée"
-                                }
-                            />
-                            <IonLabel>
-                                <h3>{task.label}</h3>
-                                <p>
-                                    Date et heure d'échéance :{" "}
-                                    {task.date.toLocaleString()}
-                                </p>
-                            </IonLabel>
-                            <IonButton onClick={() => startEdit(task)}>
-                                Modifier
-                            </IonButton>
-                            <IonButton
-                                color="danger"
-                                onClick={() => handleDelete(task.id!)}>
-                                Supprimer
-                            </IonButton>
-                        </IonItem>
-                    ))}
-                </IonList>
-                <IonModal isOpen={showForm} onDidDismiss={() => closeForm()}>
+        <div className="content-container">
+            <IonButton className="submit-button" onClick={startCreate}>
+                Ajouter une tâche
+            </IonButton>
+            <IonList>
+                {tasks.map((task) => (
+                    <IonItem
+                        key={"ion-item-" + task.id}
+                        className={task.done ? "task-done" : "task-not-done"}>
+                        <div className="item-content-wrapper">
+                            <div className="task-wrapper">
+                                <div>
+                                    <div className="task-label-wrapper">
+                                        <IonIcon
+                                            slot="start"
+                                            icon={
+                                                task.done
+                                                    ? checkmarkCircleOutline
+                                                    : closeCircleOutline
+                                            }
+                                            aria-label={
+                                                task.done
+                                                    ? "Tâche complétée"
+                                                    : "Tâche non complétée"
+                                            }
+                                        />
+                                        <h2>{task.label}</h2>
+                                    </div>
+                                    <p>
+                                        Date et heure d'échéance :{" "}
+                                        {task.date.toLocaleString()}
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <IonButton onClick={() => startEdit(task)}>
+                                    Modifier
+                                </IonButton>
+                                <IonButton
+                                    color="danger"
+                                    onClick={() => handleDelete(task.id!)}>
+                                    Supprimer
+                                </IonButton>
+                            </div>
+                        </div>
+                    </IonItem>
+                ))}
+            </IonList>
+            <IonModal isOpen={showForm} onDidDismiss={() => closeForm()}>
+                <IonHeader>
+                    <IonToolbar className="toolbar">
+                        <IonTitle>Ajout / Modification de la Tâche</IonTitle>
+                        <IonButton fill="clear" onClick={closeForm}>
+                            Fermer
+                        </IonButton>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent>
                     <TaskForm
                         isOpen={showForm}
                         onClose={closeForm}
                         onSave={handleSave}
                         {...(editingTask ? { initialTask: editingTask } : {})}
                     />
-                </IonModal>
-            </IonContent>
-        </IonPage>
+                </IonContent>
+            </IonModal>
+        </div>
     );
 };
 
